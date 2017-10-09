@@ -1,0 +1,71 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use File::Basename;
+use Cwd 'abs_path';
+
+die "Usage:\n    genome-download  <genome_list> <type:fna|gff|faa> <db>
+    Example: genome-download  gcf.txt fna GCF
+    VERSION: 0.0.1\n" if(@ARGV != 3);
+
+my ($metadata, $type, $db) = @ARGV;
+my @genome_t = ();
+my $parallel = 20;
+
+my $ext  = ($type eq 'faa') ? qq{protein.$type.gz} : qq{genomic.$type.gz};
+
+load_metadata();
+
+if(-e $db){
+    retain();
+}else{
+    download();
+}
+
+exit;
+
+sub load_metadata{
+    
+    open (DATA, $metadata) || die "$!";
+    @genome_t  =  map {chomp; $_  } <DATA>;
+    close DATA;
+
+}
+
+sub download{
+    
+    open (EXPORT , qq{>run.sh});
+    
+    foreach my $genome (@genome_t) {
+    	 
+         my $basename = basename( $genome );
+         my $fh       =  qq{$basename\_$ext};
+         print  EXPORT qq{mkdir -p $db/$basename ;\n};
+         print  EXPORT qq{wget -q -O $db/$basename/$fh $genome/$fh ;\n};
+
+    }
+    close EXPORT;
+    system qq{cat run.sh | gargs -v -nlines 2 -p $parallel "{}" \n};
+    system qq{rm run.sh};
+
+}
+
+sub retain{
+
+    open (EXPORT , qq{>run.sh});
+    
+    foreach my $genome (@genome_t) {
+        
+         my $basename = basename( $genome );
+         my $fh       =  qq{$basename\_$ext};
+         next if(-e qq{$db/$basename/$fh});
+         print  EXPORT qq{mkdir -p $db/$basename ;\n};
+         print  EXPORT qq{wget -q -O $db/$basename/$fh $genome/$fh ;\n};
+
+    }
+    close EXPORT;
+    system qq{cat run.sh | gargs -v -nlines 2 -p $parallel "{}" \n};
+    system qq{rm run.sh};
+
+}
