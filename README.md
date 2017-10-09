@@ -5,8 +5,8 @@ utils to download, manipulate NCBI data
 
 dependencies:
     
-    #cpanm Cwd
-    #wget https://github.com/brentp/gargs/releases/download/v0.3.8/gargs_linux -o  /usr/bin/gargs
+    # cpanm Cwd
+    # wget https://github.com/brentp/gargs/releases/download/v0.3.8/gargs_linux -o  /usr/bin/gargs
    
 command line interface:
     
