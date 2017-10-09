@@ -1,7 +1,7 @@
 # ncbi-utils
 utils to download, manipulate NCBI data
 
-1. genome-download
+1 genome-download
 
 command line interface:
     
